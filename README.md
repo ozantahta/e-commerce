@@ -359,12 +359,9 @@ e-commerce/
 
 ## Contributing
 
-This project was developed by Ozan TAHTA as a technical assessment for backend developer position.
-
 For questions or support regarding this implementation:
 - Contact: Ozan TAHTA
 - Project: E-commerce Order Processing System
-- Purpose: Backend Developer Technical Assessment
 
 ## License
 
@@ -380,7 +377,6 @@ For support and questions regarding this e-commerce order processing system:
 
 **Developer:** Ozan TAHTA  
 **Project:** E-commerce Order Processing System  
-**Purpose:** Backend Developer Technical Assessment  
 
 - Create an issue in the repository
 - Check the troubleshooting section
