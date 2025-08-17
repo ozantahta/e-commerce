@@ -2,6 +2,8 @@
 
 A microservices-based, event-driven order processing system built with Node.js, TypeScript, RabbitMQ, and MongoDB.
 
+**Author & Developer:** Ozan TAHTA
+
 ## 🏗️ Architecture Overview
 
 The system follows a microservices architecture with event-driven communication using message queues. Each service is independent, scalable, and fault-tolerant.
@@ -282,22 +284,33 @@ docker-compose logs -f order-service
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+This project was developed by Ozan TAHTA as a technical assessment for backend developer position.
+
+For questions or support regarding this implementation:
+- Contact: Ozan TAHTA
+- Project: E-commerce Order Processing System
+- Purpose: Backend Developer Technical Assessment
 
 ## 📄 License
 
 This project is licensed under the MIT License.
 
+**Copyright (c) 2024 Ozan TAHTA**
+
+All rights reserved.
+
 ## 🆘 Support
 
-For support and questions:
+For support and questions regarding this e-commerce order processing system:
+
+**Developer:** Ozan TAHTA  
+**Project:** E-commerce Order Processing System  
+**Purpose:** Backend Developer Technical Assessment  
+
 - Create an issue in the repository
 - Check the troubleshooting section
 - Review the API documentation
+- Contact: Ozan TAHTA
 
 ## 🔮 Future Enhancements
 

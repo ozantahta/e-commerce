@@ -28,9 +28,10 @@
     "rabbitmq",
     "typescript"
   ],
-  "author": "Backend Developer Candidate",
+  "author": "Ozan TAHTA",
   "license": "MIT",
   "devDependencies": {
+    "@types/amqplib": "^0.10.7",
     "concurrently": "^8.2.2",
     "typescript": "^5.3.3"
   },

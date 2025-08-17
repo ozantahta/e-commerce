@@ -8,8 +8,8 @@ COPY package*.json ./
 COPY services/order-service/package*.json ./services/order-service/
 COPY shared/package*.json ./shared/
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies for building)
+RUN npm ci
 
 # Copy source code
 COPY shared ./shared
@@ -20,6 +20,9 @@ RUN cd shared && npm run build
 
 # Build order service
 RUN cd services/order-service && npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --production
 
 # Create logs directory
 RUN mkdir -p /app/logs

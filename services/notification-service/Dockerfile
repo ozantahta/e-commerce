@@ -8,8 +8,8 @@ COPY package*.json ./
 COPY services/notification-service/package*.json ./services/notification-service/
 COPY shared/package*.json ./shared/
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies for building)
+RUN npm ci
 
 # Copy source code
 COPY shared ./shared
@@ -20,6 +20,9 @@ RUN cd shared && npm run build
 
 # Build notification service
 RUN cd services/notification-service && npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --production
 
 # Create logs directory
 RUN mkdir -p /app/logs

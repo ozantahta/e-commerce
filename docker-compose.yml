@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # RabbitMQ with Management UI
   rabbitmq:
@@ -25,7 +23,7 @@ services:
 
   # MongoDB
   mongodb:
-    image: mongo:7.0
+    image: mongo:6.0
     container_name: e-commerce-mongodb
     ports:
       - "27017:27017"
@@ -35,12 +33,12 @@ services:
       MONGO_INITDB_DATABASE: e-commerce
     volumes:
       - mongodb_data:/data/db
-      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--username", "admin", "--password", "admin123", "--authenticationDatabase", "admin"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 40s
     networks:
       - e-commerce-network
 
@@ -119,24 +117,6 @@ services:
         condition: service_healthy
     volumes:
       - ./logs:/app/logs
-    networks:
-      - e-commerce-network
-    restart: unless-stopped
-
-  # Nginx Reverse Proxy (Optional)
-  nginx:
-    image: nginx:alpine
-    container_name: e-commerce-nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - order-service
-      - inventory-service
-      - notification-service
     networks:
       - e-commerce-network
     restart: unless-stopped

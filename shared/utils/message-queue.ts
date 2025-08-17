@@ -40,12 +40,21 @@ export class MessageQueueManager {
       
       // Use type assertion to work around incorrect types
       this.connection = await amqp.connect(this.config.url) as any;
+      
+      // Add null check for connection
+      if (!this.connection) {
+        throw new Error('Failed to establish connection to RabbitMQ');
+      }
+      
       this.channel = await this.connection.createChannel();
       
       await this.setupExchangesAndQueues();
       
-      this.connection.on('error', this.handleConnectionError.bind(this));
-      this.connection.on('close', this.handleConnectionClose.bind(this));
+      // Add null check before adding event listeners
+      if (this.connection) {
+        this.connection.on('error', this.handleConnectionError.bind(this));
+        this.connection.on('close', this.handleConnectionClose.bind(this));
+      }
       
       this.logger.info('Successfully connected to RabbitMQ');
       this.reconnectAttempts = 0;

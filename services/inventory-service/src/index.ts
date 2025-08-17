@@ -3,14 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
-import { OrderController } from './controllers/OrderController';
-import { OrderService } from './services/OrderService';
+import { InventoryService } from './services/InventoryService';
 import { MessageQueueManager, createServiceLogger } from '@e-commerce/shared';
 
-class OrderServiceApp {
+class InventoryServiceApp {
   private app: express.Application;
   private server: any;
-  private readonly logger = createServiceLogger('OrderServiceApp');
+  private readonly logger = createServiceLogger('InventoryServiceApp');
   private messageQueue!: MessageQueueManager;
 
   constructor() {
@@ -57,7 +56,7 @@ class OrderServiceApp {
     this.app.get('/health', (req, res) => {
       res.status(200).json({
         status: 'healthy',
-        service: 'order-service',
+        service: 'inventory-service',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         memory: process.memoryUsage(),
@@ -66,17 +65,10 @@ class OrderServiceApp {
       });
     });
 
-    // API routes
-    const orderController = new OrderController(
-      new OrderService(this.messageQueue!)
-    );
-
-    this.app.post('/api/orders', (req, res) => orderController.createOrder(req, res));
-    this.app.get('/api/orders/:orderId', (req, res) => orderController.getOrder(req, res));
-    this.app.put('/api/orders/:orderId/status', (req, res) => orderController.updateOrderStatus(req, res));
-    this.app.post('/api/orders/:orderId/cancel', (req, res) => orderController.cancelOrder(req, res));
-    this.app.get('/api/customers/:customerId/orders', (req, res) => orderController.getOrdersByCustomer(req, res));
-    this.app.get('/api/orders/status/:status', (req, res) => orderController.getOrdersByStatus(req, res));
+    // API routes will be added here
+    this.app.get('/api/products', (req, res) => {
+      res.json({ message: 'Inventory Service - Products endpoint' });
+    });
 
     // 404 handler
     this.app.use('*', (req, res) => {
@@ -101,13 +93,13 @@ class OrderServiceApp {
       this.messageQueue = new MessageQueueManager({
         url: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
         exchange: 'e-commerce.events',
-        queue: 'order-service.queue',
-        routingKey: 'order.*',
+        queue: 'inventory-service.queue',
+        routingKey: 'inventory.*',
         options: {
           durable: true,
           persistent: true,
           deadLetterExchange: 'e-commerce.dlq',
-          deadLetterRoutingKey: 'order.dlq',
+          deadLetterRoutingKey: 'inventory.dlq',
           messageTtl: 30000, // 30 seconds
           maxRetries: 3
         }
@@ -117,8 +109,6 @@ class OrderServiceApp {
       this.logger.info('Message queue connected successfully');
     } catch (error) {
       this.logger.error('Failed to connect to message queue:', error);
-      // In production, you might want to exit the process
-      // process.exit(1);
     }
   }
 
@@ -144,9 +134,9 @@ class OrderServiceApp {
       await this.connectDatabase();
 
       // Start server
-      const port = process.env.PORT || 3001;
+      const port = process.env.PORT || 3002;
       this.server = this.app.listen(port, () => {
-        this.logger.info(`Order Service started on port ${port}`);
+        this.logger.info(`Inventory Service started on port ${port}`);
       });
 
       // Graceful shutdown
@@ -154,7 +144,7 @@ class OrderServiceApp {
       process.on('SIGINT', this.gracefulShutdown.bind(this));
 
     } catch (error) {
-      this.logger.error('Failed to start Order Service:', error);
+      this.logger.error('Failed to start Inventory Service:', error);
       process.exit(1);
     }
   }
@@ -190,7 +180,7 @@ class OrderServiceApp {
 }
 
 // Start the application
-const app = new OrderServiceApp();
+const app = new InventoryServiceApp();
 app.start().catch((error) => {
   console.error('Failed to start application:', error);
   process.exit(1);

@@ -12,6 +12,7 @@
     "lint": "eslint src/**/*.ts",
     "clean": "rm -rf dist"
   },
+  "author": "Ozan TAHTA",
   "dependencies": {
     "@e-commerce/shared": "file:../../shared",
     "express": "^4.18.2",

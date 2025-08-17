@@ -9,6 +9,7 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist"
   },
+  "author": "Ozan TAHTA",
   "dependencies": {
     "amqplib": "^0.10.3",
     "winston": "^3.11.0"

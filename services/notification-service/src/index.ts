@@ -3,14 +3,15 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
-import { OrderController } from './controllers/OrderController';
-import { OrderService } from './services/OrderService';
+import { NotificationController } from './controllers/NotificationController';
+import { NotificationService } from './services/NotificationService';
 import { MessageQueueManager, createServiceLogger } from '@e-commerce/shared';
+import { OrderEvent, NotificationEvent } from '@e-commerce/shared';
 
-class OrderServiceApp {
+class NotificationServiceApp {
   private app: express.Application;
   private server: any;
-  private readonly logger = createServiceLogger('OrderServiceApp');
+  private readonly logger = createServiceLogger('NotificationServiceApp');
   private messageQueue!: MessageQueueManager;
 
   constructor() {
@@ -57,7 +58,7 @@ class OrderServiceApp {
     this.app.get('/health', (req, res) => {
       res.status(200).json({
         status: 'healthy',
-        service: 'order-service',
+        service: 'notification-service',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         memory: process.memoryUsage(),
@@ -67,16 +68,12 @@ class OrderServiceApp {
     });
 
     // API routes
-    const orderController = new OrderController(
-      new OrderService(this.messageQueue!)
-    );
-
-    this.app.post('/api/orders', (req, res) => orderController.createOrder(req, res));
-    this.app.get('/api/orders/:orderId', (req, res) => orderController.getOrder(req, res));
-    this.app.put('/api/orders/:orderId/status', (req, res) => orderController.updateOrderStatus(req, res));
-    this.app.post('/api/orders/:orderId/cancel', (req, res) => orderController.cancelOrder(req, res));
-    this.app.get('/api/customers/:customerId/orders', (req, res) => orderController.getOrdersByCustomer(req, res));
-    this.app.get('/api/orders/status/:status', (req, res) => orderController.getOrdersByStatus(req, res));
+    this.app.get('/api/notifications/:id', NotificationController.getNotification);
+    this.app.get('/api/notifications/recipient/:recipientId', NotificationController.getNotificationsByRecipient);
+    this.app.get('/api/notifications/status/:status', NotificationController.getNotificationsByStatus);
+    this.app.post('/api/notifications', NotificationController.sendNotification);
+    this.app.post('/api/notifications/:id/retry', NotificationController.retryNotification);
+    this.app.get('/api/notifications/stats', NotificationController.getNotificationStats);
 
     // 404 handler
     this.app.use('*', (req, res) => {
@@ -99,15 +96,15 @@ class OrderServiceApp {
   private async setupMessageQueue(): Promise<void> {
     try {
       this.messageQueue = new MessageQueueManager({
-        url: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
-        exchange: 'e-commerce.events',
-        queue: 'order-service.queue',
+        url: process.env.RABBITMQ_URL || 'amqp://admin:admin123@rabbitmq:5672',
+        exchange: 'e-commerce-events',
+        queue: 'notification-service-queue',
         routingKey: 'order.*',
         options: {
           durable: true,
           persistent: true,
-          deadLetterExchange: 'e-commerce.dlq',
-          deadLetterRoutingKey: 'order.dlq',
+          deadLetterExchange: 'e-commerce-dlq',
+          deadLetterRoutingKey: 'notification-service-dlq',
           messageTtl: 30000, // 30 seconds
           maxRetries: 3
         }
@@ -115,6 +112,52 @@ class OrderServiceApp {
 
       await this.messageQueue.connect();
       this.logger.info('Message queue connected successfully');
+
+      // Subscribe to order events
+      await this.messageQueue.consumeEvents(async (event: any, message: any) => {
+        try {
+          if (event.type === 'order.created') {
+            const orderEvent = event as OrderEvent;
+            this.logger.info('Processing order.created event:', orderEvent);
+            
+            // Send order confirmation notification
+            await this.sendOrderConfirmation(orderEvent);
+            
+            // Publish notification event
+            const notificationEvent: NotificationEvent = {
+              id: `notif_${Date.now()}`,
+              type: 'notification.sent',
+              version: '1.0.0',
+              timestamp: new Date(),
+              source: 'notification-service',
+              data: {
+                recipientId: orderEvent.data.customerId,
+                type: 'email',
+                template: 'order_confirmation',
+                content: {
+                  orderId: orderEvent.data.orderId,
+                  message: 'Your order has been confirmed!'
+                },
+                status: 'pending',
+                attempts: 0
+              }
+            };
+            
+            await this.messageQueue.publishEvent(notificationEvent, 'notification.sent');
+            this.logger.info('Order confirmation notification sent');
+          } else if (event.type === 'order.cancelled') {
+            const orderEvent = event as OrderEvent;
+            this.logger.info('Processing order.cancelled event:', orderEvent);
+            
+            // Send order cancellation notification
+            await this.sendOrderCancellation(orderEvent);
+            this.logger.info('Order cancellation notification sent');
+          }
+        } catch (error: any) {
+          this.logger.error('Error processing event:', error);
+        }
+      });
+
     } catch (error) {
       this.logger.error('Failed to connect to message queue:', error);
       // In production, you might want to exit the process
@@ -124,7 +167,7 @@ class OrderServiceApp {
 
   private async connectDatabase(): Promise<void> {
     try {
-      const mongoUrl = process.env.MONGODB_URL || 'mongodb://localhost:27017/e-commerce';
+      const mongoUrl = process.env.MONGODB_URL || 'mongodb://admin:admin123@mongodb:27017/e-commerce?authSource=admin';
       await mongoose.connect(mongoUrl, {
         maxPoolSize: 10,
         serverSelectionTimeoutMS: 5000,
@@ -138,15 +181,28 @@ class OrderServiceApp {
     }
   }
 
+  // Notification functions
+  private async sendOrderConfirmation(orderEvent: OrderEvent): Promise<void> {
+    // Simulate sending email/SMS notification
+    this.logger.info(`Sending order confirmation to customer ${orderEvent.data.customerId} for order ${orderEvent.data.orderId}`);
+    // In production, integrate with email/SMS service
+  }
+
+  private async sendOrderCancellation(orderEvent: OrderEvent): Promise<void> {
+    // Simulate sending email/SMS notification
+    this.logger.info(`Sending order cancellation to customer ${orderEvent.data.customerId} for order ${orderEvent.data.orderId}`);
+    // In production, integrate with email/SMS service
+  }
+
   async start(): Promise<void> {
     try {
       // Connect to database
       await this.connectDatabase();
 
       // Start server
-      const port = process.env.PORT || 3001;
+      const port = process.env.PORT || 3003;
       this.server = this.app.listen(port, () => {
-        this.logger.info(`Order Service started on port ${port}`);
+        this.logger.info(`Notification Service started on port ${port}`);
       });
 
       // Graceful shutdown
@@ -154,7 +210,7 @@ class OrderServiceApp {
       process.on('SIGINT', this.gracefulShutdown.bind(this));
 
     } catch (error) {
-      this.logger.error('Failed to start Order Service:', error);
+      this.logger.error('Failed to start Notification Service:', error);
       process.exit(1);
     }
   }
@@ -190,8 +246,9 @@ class OrderServiceApp {
 }
 
 // Start the application
-const app = new OrderServiceApp();
+const app = new NotificationServiceApp();
 app.start().catch((error) => {
   console.error('Failed to start application:', error);
   process.exit(1);
 });
+

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 
 export interface IProduct extends Document {
   productId: string;
@@ -14,6 +14,18 @@ export interface IProduct extends Document {
   createdAt: Date;
   updatedAt: Date;
   metadata?: Record<string, any>;
+  
+  // Instance methods
+  reserveInventory(quantity: number, orderId: string): Promise<boolean>;
+  releaseInventory(quantity: number, orderId: string): Promise<void>;
+  updateStock(newQuantity: number): Promise<void>;
+}
+
+// Interface for static methods
+export interface IProductModel extends Model<IProduct> {
+  findByCategory(category: string): Promise<IProduct[]>;
+  findLowStock(threshold?: number): Promise<IProduct[]>;
+  findAvailable(): Promise<IProduct[]>;
 }
 
 const ProductSchema = new Schema<IProduct>({
@@ -96,7 +108,7 @@ ProductSchema.pre('save', function(next) {
 });
 
 // Instance method to reserve inventory
-ProductSchema.methods.reserveInventory = async function(quantity: number, orderId: string): Promise<boolean> {
+ProductSchema.methods.reserveInventory = async function(this: IProduct, quantity: number, orderId: string): Promise<boolean> {
   if (this.availableQuantity < quantity) {
     return false;
   }
@@ -105,6 +117,9 @@ ProductSchema.methods.reserveInventory = async function(quantity: number, orderI
   this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
   
   // Add reservation metadata
+  if (!this.metadata) {
+    this.metadata = {};
+  }
   if (!this.metadata.reservations) {
     this.metadata.reservations = [];
   }
@@ -120,12 +135,12 @@ ProductSchema.methods.reserveInventory = async function(quantity: number, orderI
 };
 
 // Instance method to release inventory
-ProductSchema.methods.releaseInventory = async function(quantity: number, orderId: string): Promise<void> {
+ProductSchema.methods.releaseInventory = async function(this: IProduct, quantity: number, orderId: string): Promise<void> {
   this.reservedQuantity = Math.max(0, this.reservedQuantity - quantity);
   this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
   
   // Update reservation metadata
-  if (this.metadata.reservations) {
+  if (this.metadata && this.metadata.reservations) {
     this.metadata.reservations = this.metadata.reservations.filter(
       (res: any) => res.orderId !== orderId
     );
@@ -135,7 +150,7 @@ ProductSchema.methods.releaseInventory = async function(quantity: number, orderI
 };
 
 // Instance method to update stock
-ProductSchema.methods.updateStock = async function(newQuantity: number): Promise<void> {
+ProductSchema.methods.updateStock = async function(this: IProduct, newQuantity: number): Promise<void> {
   this.stockQuantity = Math.max(0, newQuantity);
   this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
   await this.save();
@@ -162,4 +177,4 @@ ProductSchema.statics.findAvailable = function() {
   });
 };
 
-export const Product = mongoose.model<IProduct>('Product', ProductSchema);
+export const Product = mongoose.model<IProduct, IProductModel>('Product', ProductSchema);
