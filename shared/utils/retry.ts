@@ -1,7 +1,17 @@
 import { RetryConfig } from '../types';
 
 export class RetryHandler {
-  constructor(private config: RetryConfig) {}
+  private config: RetryConfig;
+
+  constructor(config: Partial<RetryConfig> = {}) {
+    this.config = {
+      maxAttempts: 3,
+      backoffMs: 1000,
+      maxBackoffMs: 10000,
+      jitter: true,
+      ...config
+    };
+  }
 
   async execute<T>(
     operation: () => Promise<T>,
@@ -44,13 +54,5 @@ export class RetryHandler {
 }
 
 export const createRetryHandler = (config: Partial<RetryConfig> = {}): RetryHandler => {
-  const defaultConfig: RetryConfig = {
-    maxAttempts: 3,
-    backoffMs: 1000,
-    maxBackoffMs: 10000,
-    jitter: true,
-    ...config
-  };
-  
-  return new RetryHandler(defaultConfig);
+  return new RetryHandler(config);
 };

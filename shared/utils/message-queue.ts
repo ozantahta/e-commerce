@@ -245,12 +245,20 @@ export class MessageQueueManager {
   async close(): Promise<void> {
     try {
       if (this.channel) {
-        await this.channel.close();
+        try {
+          await this.channel.close();
+        } catch (error) {
+          this.logger.error('Error closing channel:', error);
+        }
         this.channel = null;
       }
       
       if (this.connection) {
-        await this.connection.close();
+        try {
+          await this.connection.close();
+        } catch (error) {
+          this.logger.error('Error closing connection:', error);
+        }
         this.connection = null;
       }
       
