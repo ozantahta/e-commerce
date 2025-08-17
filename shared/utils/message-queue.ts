@@ -1,11 +1,29 @@
-import amqp, { Connection, Channel, Message, ConsumeMessage, Options } from 'amqplib';
+import * as amqp from 'amqplib';
 import { MessageQueueConfig, BaseEvent } from '../types';
 import { createServiceLogger } from './logger';
 import { CircuitBreaker } from './circuit-breaker';
 
+// Define the correct types based on actual amqplib behavior
+interface AmqpConnection {
+  createChannel(): Promise<AmqpChannel>;
+  on(event: string, listener: Function): void;
+  close(): Promise<void>;
+}
+
+interface AmqpChannel {
+  assertExchange(name: string, type: string, options?: any): Promise<any>;
+  assertQueue(name: string, options?: any): Promise<any>;
+  bindQueue(queue: string, source: string, pattern: string): Promise<any>;
+  publish(exchange: string, routingKey: string, content: Buffer, options?: any): boolean;
+  consume(queue: string, callback: (msg: any) => void, options?: any): Promise<any>;
+  ack(message: any): void;
+  nack(message: any, allUpTo: boolean, requeue: boolean): void;
+  close(): Promise<void>;
+}
+
 export class MessageQueueManager {
-  private connection: Connection | null = null;
-  private channel: Channel | null = null;
+  private connection: AmqpConnection | null = null;
+  private channel: AmqpChannel | null = null;
   private readonly logger = createServiceLogger('MessageQueue');
   private readonly circuitBreaker: CircuitBreaker;
   private reconnectAttempts = 0;
@@ -20,7 +38,8 @@ export class MessageQueueManager {
     try {
       this.logger.info('Connecting to RabbitMQ...');
       
-      this.connection = await amqp.connect(this.config.url);
+      // Use type assertion to work around incorrect types
+      this.connection = await amqp.connect(this.config.url) as any;
       this.channel = await this.connection.createChannel();
       
       await this.setupExchangesAndQueues();
@@ -113,7 +132,7 @@ export class MessageQueueManager {
   }
 
   async consumeEvents(
-    handler: (event: BaseEvent, message: ConsumeMessage) => Promise<void>
+    handler: (event: BaseEvent, message: any) => Promise<void>
   ): Promise<void> {
     if (!this.channel) {
       throw new Error('Channel not initialized');
@@ -153,7 +172,7 @@ export class MessageQueueManager {
   async publishToDeadLetter(
     event: BaseEvent,
     reason: string,
-    originalMessage: ConsumeMessage
+    originalMessage: any
   ): Promise<void> {
     if (!this.channel || !this.config.options?.deadLetterExchange) {
       this.logger.warn('Dead letter queue not configured, dropping message');
