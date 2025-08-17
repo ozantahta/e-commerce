@@ -1,0 +1,41 @@
+{
+  "name": "e-commerce-order-processing",
+  "version": "1.0.0",
+  "description": "E-commerce order processing system with microservices and event-driven architecture",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:order\" \"npm run dev:inventory\" \"npm run dev:notification\"",
+    "dev:order": "cd services/order-service && npm run dev",
+    "dev:inventory": "cd services/inventory-service && npm run dev",
+    "dev:notification": "cd services/notification-service && npm run dev",
+    "build": "npm run build:order && npm run build:inventory && npm run build:notification",
+    "build:order": "cd services/order-service && npm run build",
+    "build:inventory": "cd services/inventory-service && npm run build",
+    "build:notification": "cd services/notification-service && npm run build",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "test": "npm run test:order && npm run test:inventory && npm run test:notification",
+    "test:order": "cd services/order-service && npm test",
+    "test:inventory": "cd services/inventory-service && npm test",
+    "test:notification": "cd services/notification-service && npm test"
+  },
+  "keywords": [
+    "microservices",
+    "event-driven",
+    "e-commerce",
+    "order-processing",
+    "rabbitmq",
+    "typescript"
+  ],
+  "author": "Backend Developer Candidate",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "workspaces": [
+    "services/*",
+    "shared/*"
+  ]
+}
