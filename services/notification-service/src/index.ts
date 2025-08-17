@@ -68,12 +68,13 @@ class NotificationServiceApp {
     });
 
     // API routes
-    this.app.get('/api/notifications/:id', NotificationController.getNotification);
+    this.app.get('/api/notifications', NotificationController.getAllNotifications);
+    this.app.get('/api/notifications/stats', NotificationController.getNotificationStats);
     this.app.get('/api/notifications/recipient/:recipientId', NotificationController.getNotificationsByRecipient);
     this.app.get('/api/notifications/status/:status', NotificationController.getNotificationsByStatus);
     this.app.post('/api/notifications', NotificationController.sendNotification);
     this.app.post('/api/notifications/:id/retry', NotificationController.retryNotification);
-    this.app.get('/api/notifications/stats', NotificationController.getNotificationStats);
+    this.app.get('/api/notifications/:id', NotificationController.getNotification);
 
     // 404 handler
     this.app.use('*', (req, res) => {

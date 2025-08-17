@@ -138,6 +138,40 @@ class InventoryServiceApp {
       }
     });
 
+    // Stock update endpoint
+    this.app.put('/api/products/:productId/stock', async (req, res) => {
+      try {
+        const { productId } = req.params;
+        const { newQuantity, metadata } = req.body;
+        
+        if (newQuantity === undefined) {
+          return res.status(400).json({
+            success: false,
+            error: 'Missing required field: newQuantity'
+          });
+        }
+
+        if (typeof newQuantity !== 'number' || newQuantity < 0) {
+          return res.status(400).json({
+            success: false,
+            error: 'newQuantity must be a non-negative number'
+          });
+        }
+
+        const updatedProduct = await inventoryService.updateProductStock(productId, newQuantity, metadata);
+        res.json({
+          success: true,
+          product: updatedProduct
+        });
+      } catch (error: any) {
+        this.logger.error('Error updating product stock:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Failed to update product stock'
+        });
+      }
+    });
+
     // Inventory management
     this.app.post('/api/inventory', async (req, res) => {
       try {

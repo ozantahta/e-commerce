@@ -3,11 +3,16 @@
 # Quick Test Launcher
 # This script runs the main test suite
 
-echo "Launching E-commerce System Tests..."
+# Colors for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Launching E-commerce System Tests...${NC}"
 echo "====================================="
 
 # Run the main test script
 ./scripts/test-services.sh
 
 echo ""
-echo "Tests completed! Check the output above for results."
+echo -e "${GREEN}Tests completed! Check the output above for results.${NC}"

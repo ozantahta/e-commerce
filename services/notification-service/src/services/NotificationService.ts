@@ -121,6 +121,16 @@ export class NotificationService {
     }
   }
 
+  // Get all notifications
+  async getAllNotifications(): Promise<INotification[]> {
+    try {
+      return await Notification.find().sort({ createdAt: -1 });
+    } catch (error: any) {
+      logger.error('Error getting all notifications:', error);
+      throw error;
+    }
+  }
+
   // Get notification by ID
   async getNotificationById(id: string): Promise<INotification | null> {
     try {

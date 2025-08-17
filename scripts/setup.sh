@@ -5,21 +5,28 @@
 
 set -e
 
-echo "Starting E-commerce Order Processing System Setup..."
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Starting E-commerce Order Processing System Setup...${NC}"
 echo "=================================================="
 
 # Check if Docker is available
 if ! command -v docker &> /dev/null; then
-    echo "ERROR: Docker is not installed or not in PATH"
+    echo -e "${RED}[ERROR] Docker is not installed or not in PATH${NC}"
     exit 1
 fi
 
 if ! command -v docker-compose &> /dev/null; then
-    echo "ERROR: Docker Compose is not installed or not in PATH"
+    echo -e "${RED}[ERROR] Docker Compose is not installed or not in PATH${NC}"
     exit 1
 fi
 
-echo "Docker and Docker Compose are available"
+echo -e "${GREEN}[SUCCESS] Docker and Docker Compose are available${NC}"
 
 # Create necessary directories
 echo "Creating necessary directories..."
@@ -49,53 +56,53 @@ sleep 30
 echo "Checking service health..."
 echo "Order Service:"
 if curl -f -s http://localhost:3001/health > /dev/null; then
-    echo "Order Service is healthy"
+    echo -e "${GREEN}[SUCCESS] Order Service is healthy${NC}"
 else
-    echo "ERROR: Order Service is not healthy"
+    echo -e "${RED}[ERROR] Order Service is not healthy${NC}"
     exit 1
 fi
 
 echo "Inventory Service:"
 if curl -f -s http://localhost:3002/health > /dev/null; then
-    echo "Inventory Service is healthy"
+    echo -e "${GREEN}[SUCCESS] Inventory Service is healthy${NC}"
 else
-    echo "ERROR: Inventory Service is not healthy"
+    echo -e "${RED}[ERROR] Inventory Service is not healthy${NC}"
     exit 1
 fi
 
 echo "Notification Service:"
 if curl -f -s http://localhost:3003/health > /dev/null; then
-    echo "Notification Service is healthy"
+    echo -e "${GREEN}[SUCCESS] Notification Service is healthy${NC}"
 else
-    echo "ERROR: Notification Service is not healthy"
+    echo -e "${RED}[ERROR] Notification Service is not healthy${NC}"
     exit 1
 fi
 
 # Check RabbitMQ
 echo "RabbitMQ Management UI is accessible"
 if curl -f -s -u admin:admin123 http://localhost:15672/api/overview > /dev/null; then
-    echo "RabbitMQ Management UI is accessible"
+    echo -e "${GREEN}[SUCCESS] RabbitMQ Management UI is accessible${NC}"
 else
-    echo "ERROR: RabbitMQ Management UI is not accessible"
+    echo -e "${RED}[ERROR] RabbitMQ Management UI is not accessible${NC}"
     exit 1
 fi
 
 echo ""
-echo "Setup completed successfully!"
+echo -e "${GREEN}Setup completed successfully!${NC}"
 echo ""
-echo "Service URLs:"
+echo -e "${BLUE}Service URLs:${NC}"
 echo "  Order Service: http://localhost:3001"
 echo "  Inventory Service: http://localhost:3002"
 echo "  Notification Service: http://localhost:3003"
 echo "  RabbitMQ Management: http://localhost:15672 (admin/admin123)"
 echo ""
-echo "Next steps:"
+echo -e "${YELLOW}Next steps:${NC}"
 echo "  1. Update .env file with your configuration"
 echo "  2. Test the API endpoints"
 echo "  3. Monitor logs: docker-compose logs -f"
 echo "  4. Stop services: docker-compose down"
 echo ""
-echo "Useful commands:"
+echo -e "${BLUE}Useful commands:${NC}"
 echo "  View logs: docker-compose logs -f [service-name]"
 echo "  Restart service: docker-compose restart [service-name]"
 echo "  Stop all: docker-compose down"

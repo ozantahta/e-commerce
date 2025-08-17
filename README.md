@@ -71,6 +71,9 @@ docker-compose up -d
 # Run comprehensive system tests
 ./run-tests.sh
 
+# Test all endpoints comprehensively
+./test-endpoints.sh
+
 # Create sample data for testing
 ./create-data.sh
 ```

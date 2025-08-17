@@ -3,7 +3,14 @@
 # Simple E-commerce Service Test
 # Test all services quickly and easily
 
-echo "Testing E-commerce Services"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Testing E-commerce Services${NC}"
 echo "============================"
 
 # Test 1: Health Checks
@@ -40,7 +47,7 @@ if echo "$order_response" | jq -e '.success' > /dev/null 2>&1; then
     success=$(echo "$order_response" | jq -r '.success')
     if [ "$success" = "true" ]; then
         order_id=$(echo "$order_response" | jq -r '.data.orderId')
-        echo "Order created: $order_id"
+        echo -e "${GREEN}[SUCCESS] Order created: $order_id${NC}"
         
         # Test 3: Get the order
         echo "Testing Order Retrieval..."
@@ -48,18 +55,18 @@ if echo "$order_response" | jq -e '.success' > /dev/null 2>&1; then
         if echo "$retrieved_order" | jq -e '.success' > /dev/null 2>&1; then
             success=$(echo "$retrieved_order" | jq -r '.success')
             if [ "$success" = "true" ]; then
-                echo "Order retrieved successfully"
+                echo -e "${GREEN}[SUCCESS] Order retrieved successfully${NC}"
             else
-                echo "Failed to retrieve order: $retrieved_order"
+                echo -e "${RED}[FAILED] Failed to retrieve order: $retrieved_order${NC}"
             fi
         else
-            echo "Failed to retrieve order: $retrieved_order"
+            echo -e "${RED}[FAILED] Failed to retrieve order: $retrieved_order${NC}"
         fi
     else
-        echo "Failed to create order: $order_response"
+        echo -e "${RED}[FAILED] Failed to create order: $order_response${NC}"
     fi
 else
-    echo "Failed to create order: $order_response"
+            echo -e "${RED}[FAILED] Failed to create order: $order_response${NC}"
 fi
 echo ""
 
@@ -68,20 +75,20 @@ echo "Testing Product Listing..."
 products=$(curl -s http://localhost:3002/api/products)
 if echo "$products" | jq -e '.[0]' > /dev/null 2>&1; then
     product_count=$(echo "$products" | jq 'length' 2>/dev/null || echo "0")
-    echo "Found $product_count products"
+    echo -e "${GREEN}[SUCCESS] Found $product_count products${NC}"
 else
-    echo "No products found"
+    echo -e "${RED}[FAILED] No products found${NC}"
 fi
 echo ""
 
 # Test 5: Check RabbitMQ
 echo "Testing RabbitMQ..."
 if curl -s -u admin:admin123 http://localhost:15672/api/overview > /dev/null; then
-    echo "RabbitMQ management accessible"
+    echo -e "${GREEN}[SUCCESS] RabbitMQ management accessible${NC}"
     queue_count=$(curl -s -u admin:admin123 http://localhost:15672/api/queues | jq '.length' 2>/dev/null || echo "0")
-    echo "   Queues found: $queue_count"
+    echo -e "${BLUE}[INFO] Queues found: $queue_count${NC}"
 else
-    echo "RabbitMQ management not accessible"
+    echo -e "${RED}[FAILED] RabbitMQ management not accessible${NC}"
 fi
 echo ""
 
@@ -106,7 +113,7 @@ if echo "$event_order" | jq -e '.success' > /dev/null 2>&1; then
     success=$(echo "$event_order" | jq -r '.success')
     if [ "$success" = "true" ]; then
         event_order_id=$(echo "$event_order" | jq -r '.data.orderId')
-        echo "Event order created: $event_order_id, waiting for processing..."
+        echo -e "${GREEN}[SUCCESS] Event order created: $event_order_id, waiting for processing...${NC}"
         
         # Wait a bit for event processing
         sleep 3
@@ -114,24 +121,24 @@ if echo "$event_order" | jq -e '.success' > /dev/null 2>&1; then
         # Check if notification was created
         notification_check=$(curl -s "http://localhost:3003/api/notifications/recipient/EVENT_TEST_001")
         if echo "$notification_check" | jq -e '.[0]' > /dev/null 2>&1; then
-            echo "Event flow working - notification created"
+            echo -e "${GREEN}[SUCCESS] Event flow working - notification created${NC}"
         else
-            echo "Event flow - no notification found yet"
+            echo -e "${YELLOW}[WARNING] Event flow - no notification found yet${NC}"
         fi
     else
-        echo "Failed to create event order: $event_order"
+        echo -e "${RED}[FAILED] Failed to create event order: $event_order${NC}"
     fi
 else
-    echo "Failed to create event order: $event_order"
+            echo -e "${RED}[FAILED] Failed to create event order: $event_order${NC}"
 fi
 echo ""
 
-echo "Testing completed!"
+echo -e "${GREEN}Testing completed!${NC}"
 echo ""
-echo "Access your services:"
+echo -e "${BLUE}Access your services:${NC}"
 echo "  Order Service: http://localhost:3001"
 echo "  Inventory Service: http://localhost:3002"
 echo "  Notification Service: http://localhost:3003"
 echo "  RabbitMQ Management: http://localhost:15672 (admin/admin123)"
 echo ""
-echo "View logs: sudo docker-compose logs -f [service-name]"
+echo -e "${YELLOW}View logs: sudo docker-compose logs -f [service-name]${NC}"

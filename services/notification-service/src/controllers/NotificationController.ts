@@ -6,6 +6,17 @@ const logger = createServiceLogger('notification-controller');
 const notificationService = new NotificationService();
 
 export class NotificationController {
+  // Get all notifications
+  static async getAllNotifications(req: Request, res: Response) {
+    try {
+      const notifications = await notificationService.getAllNotifications();
+      res.json(notifications);
+    } catch (error: any) {
+      logger.error('Error getting all notifications:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get notification by ID
   static async getNotification(req: Request, res: Response) {
     try {

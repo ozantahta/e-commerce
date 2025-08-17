@@ -3,13 +3,20 @@
 # Creating Sample Data for E-commerce System
 # This script creates sample products and orders for testing
 
-echo "Creating Sample Data for E-commerce System"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Creating Sample Data for E-commerce System${NC}"
 echo "=========================================="
 
 # Check if inventory service is running
 echo "Checking available endpoints..."
 echo "  Testing inventory service health:"
-curl -s http://localhost:3002/health | jq '.status, .service' 2>/dev/null || echo "Inventory service not responding"
+curl -s http://localhost:3002/health | jq '.status, .service' 2>/dev/null || echo -e "${RED}[FAILED] Inventory service not responding${NC}"
 echo ""
 
 # Create sample products
@@ -93,12 +100,12 @@ specific_inventory=$(curl -s http://localhost:3002/api/inventory/PROD001)
 echo "$specific_inventory"
 echo ""
 
-echo "Sample data creation completed!"
+echo -e "${GREEN}Sample data creation completed!${NC}"
 echo ""
-echo "Debug Information:"
+echo -e "${BLUE}Debug Information:${NC}"
 echo "  - Check if inventory service is running: sudo docker-compose ps"
 echo "  - View inventory service logs: sudo docker-compose logs -f inventory-service"
 echo "  - Check API endpoints: curl http://localhost:3002/health"
 echo ""
-echo "After fixing issues, run the test script:"
+echo -e "${YELLOW}After fixing issues, run the test script:${NC}"
 echo "  ./test-services.sh"
