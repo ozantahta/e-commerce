@@ -1,4 +1,4 @@
-import amqp, { Connection, Channel, Message, ConsumeMessage } from 'amqplib';
+import amqp, { Connection, Channel, Message, ConsumeMessage, Options } from 'amqplib';
 import { MessageQueueConfig, BaseEvent } from '../types';
 import { createServiceLogger } from './logger';
 import { CircuitBreaker } from './circuit-breaker';
@@ -143,8 +143,7 @@ export class MessageQueueManager {
         }
       },
       {
-        noAck: false,
-        prefetch: 1
+        noAck: false
       }
     );
 
@@ -234,6 +233,6 @@ export class MessageQueueManager {
   }
 
   isConnected(): boolean {
-    return this.connection !== null && this.connection.connection !== null;
+    return this.connection !== null && this.connection !== undefined;
   }
 }

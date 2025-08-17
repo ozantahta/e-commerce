@@ -28,6 +28,6 @@
     "**/*.test.ts"
   ],
   "references": [
-    { "path": "../../shared" }
+    { "path": "/home/onesta759/e-commerce/shared" }
   ]
 }
