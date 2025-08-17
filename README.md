@@ -367,7 +367,7 @@ For questions or support regarding this implementation:
 
 This project is licensed under the MIT License.
 
-**Copyright (c) 2024 Ozan TAHTA**
+**Copyright (c) 2025 Ozan TAHTA**
 
 All rights reserved.
 
