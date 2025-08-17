@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface INotification extends Document {
-  notificationId: string;
+  notificationId: string; // Required for API endpoints to work properly
   recipientId: string;
   type: 'email' | 'sms' | 'push';
   template: string;
@@ -19,7 +19,7 @@ export interface INotification extends Document {
 const NotificationSchema = new Schema<INotification>({
   notificationId: { 
     type: String, 
-    required: true, 
+    required: true, // Required for API endpoints to work properly
     unique: true, 
     index: true 
   },
@@ -76,6 +76,14 @@ NotificationSchema.index({ status: 1, createdAt: -1 });
 NotificationSchema.index({ recipientId: 1, createdAt: -1 });
 NotificationSchema.index({ type: 1, status: 1 });
 NotificationSchema.index({ attempts: 1, status: 1 });
+
+// Pre-save middleware to auto-generate notificationId if not provided
+NotificationSchema.pre('save', function(next) {
+  if (!this.notificationId) {
+    this.notificationId = `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+  next();
+});
 
 // Instance method to mark as sent
 NotificationSchema.methods.markAsSent = function(): Promise<INotification> {

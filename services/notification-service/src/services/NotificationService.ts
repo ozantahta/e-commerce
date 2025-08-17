@@ -26,6 +26,7 @@ export class NotificationService {
   }): Promise<INotification> {
     try {
       const notification = new Notification({
+        notificationId: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         recipientId: notificationData.recipientId,
         type: notificationData.type,
         template: notificationData.template,
@@ -123,7 +124,7 @@ export class NotificationService {
   // Get notification by ID
   async getNotificationById(id: string): Promise<INotification | null> {
     try {
-      return await Notification.findById(id);
+      return await Notification.findOne({ notificationId: id });
     } catch (error: any) {
       logger.error('Error getting notification by ID:', error);
       throw error;

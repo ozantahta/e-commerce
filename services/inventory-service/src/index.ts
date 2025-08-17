@@ -65,9 +65,164 @@ class InventoryServiceApp {
       });
     });
 
-    // API routes will be added here
-    this.app.get('/api/products', (req, res) => {
-      res.json({ message: 'Inventory Service - Products endpoint' });
+    // API routes
+    const inventoryService = new InventoryService(this.messageQueue!);
+
+    // Product management
+    this.app.post('/api/products', async (req, res) => {
+      try {
+        const { name, description, price, stockQuantity, category, sku, metadata } = req.body;
+        
+        if (!name || !description || !price || !stockQuantity || !category || !sku) {
+          return res.status(400).json({
+            success: false,
+            error: 'Missing required fields: name, description, price, stockQuantity, category, sku'
+          });
+        }
+
+        const product = await inventoryService.createProduct(
+          name,
+          description,
+          price,
+          stockQuantity,
+          category,
+          sku,
+          metadata
+        );
+
+        res.status(201).json({
+          success: true,
+          product
+        });
+      } catch (error: any) {
+        this.logger.error('Error creating product:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Failed to create product'
+        });
+      }
+    });
+
+    this.app.get('/api/products', async (req, res) => {
+      try {
+        const products = await inventoryService.getAllProducts();
+        res.json(products);
+      } catch (error: any) {
+        this.logger.error('Error getting products:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to get products'
+        });
+      }
+    });
+
+    this.app.get('/api/products/:productId', async (req, res) => {
+      try {
+        const { productId } = req.params;
+        const product = await inventoryService.getProduct(productId);
+        
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            error: 'Product not found'
+          });
+        }
+
+        res.json(product);
+      } catch (error: any) {
+        this.logger.error('Error getting product:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to get product'
+        });
+      }
+    });
+
+    // Inventory management
+    this.app.post('/api/inventory', async (req, res) => {
+      try {
+        const { productId, quantity, reserved } = req.body;
+        
+        if (!productId || quantity === undefined) {
+          return res.status(400).json({
+            success: false,
+            error: 'Missing required fields: productId, quantity'
+          });
+        }
+
+        const inventory = await inventoryService.createInventory(productId, quantity, reserved || 0);
+        res.status(201).json({
+          success: true,
+          inventory
+        });
+      } catch (error: any) {
+        this.logger.error('Error creating inventory:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Failed to create inventory'
+        });
+      }
+    });
+
+    this.app.get('/api/inventory', async (req, res) => {
+      try {
+        const inventory = await inventoryService.getAllInventory();
+        res.json(inventory);
+      } catch (error: any) {
+        this.logger.error('Error getting inventory:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to get inventory'
+        });
+      }
+    });
+
+    this.app.get('/api/inventory/:productId', async (req, res) => {
+      try {
+        const { productId } = req.params;
+        const inventory = await inventoryService.getInventory(productId);
+        
+        if (!inventory) {
+          return res.status(404).json({
+            success: false,
+            error: 'Inventory not found'
+          });
+        }
+
+        res.json(inventory);
+      } catch (error: any) {
+        this.logger.error('Error getting inventory:', error);
+        res.status(500).json({
+          success: false,
+          error: 'Failed to get inventory'
+        });
+      }
+    });
+
+    this.app.put('/api/inventory/:productId', async (req, res) => {
+      try {
+        const { productId } = req.params;
+        const { quantity, reserved } = req.body;
+        
+        if (quantity === undefined) {
+          return res.status(400).json({
+            success: false,
+            error: 'Missing required field: quantity'
+          });
+        }
+
+        const inventory = await inventoryService.updateInventory(productId, quantity, reserved);
+        res.json({
+          success: true,
+          inventory
+        });
+      } catch (error: any) {
+        this.logger.error('Error updating inventory:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message || 'Failed to update inventory'
+        });
+      }
     });
 
     // 404 handler

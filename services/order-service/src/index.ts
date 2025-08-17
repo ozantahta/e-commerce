@@ -16,8 +16,7 @@ class OrderServiceApp {
   constructor() {
     this.app = express();
     this.setupMiddleware();
-    this.setupRoutes();
-    this.setupMessageQueue();
+    // Don't set up routes here - wait until after middleware
   }
 
   private setupMiddleware(): void {
@@ -66,17 +65,8 @@ class OrderServiceApp {
       });
     });
 
-    // API routes
-    const orderController = new OrderController(
-      new OrderService(this.messageQueue!)
-    );
-
-    this.app.post('/api/orders', (req, res) => orderController.createOrder(req, res));
-    this.app.get('/api/orders/:orderId', (req, res) => orderController.getOrder(req, res));
-    this.app.put('/api/orders/:orderId/status', (req, res) => orderController.updateOrderStatus(req, res));
-    this.app.post('/api/orders/:orderId/cancel', (req, res) => orderController.cancelOrder(req, res));
-    this.app.get('/api/customers/:customerId/orders', (req, res) => orderController.getOrdersByCustomer(req, res));
-    this.app.get('/api/orders/status/:status', (req, res) => orderController.getOrdersByStatus(req, res));
+    // API routes - set up immediately but with null checking
+    this.setupAPIRoutes();
 
     // 404 handler
     this.app.use('*', (req, res) => {
@@ -94,6 +84,24 @@ class OrderServiceApp {
         error: 'Internal server error'
       });
     });
+  }
+
+  private setupAPIRoutes(): void {
+    this.logger.info('Setting up API routes...');
+    
+    // API routes
+    const orderController = new OrderController(
+      new OrderService(this.messageQueue || null)
+    );
+
+    this.app.post('/api/orders', (req, res) => orderController.createOrder(req, res));
+    this.app.get('/api/orders/:orderId', (req, res) => orderController.getOrder(req, res));
+    this.app.put('/api/orders/:orderId/status', (req, res) => orderController.updateOrderStatus(req, res));
+    this.app.post('/api/orders/:orderId/cancel', (req, res) => orderController.cancelOrder(req, res));
+    this.app.get('/api/customers/:customerId/orders', (req, res) => orderController.getOrdersByCustomer(req, res));
+    this.app.get('/api/orders/status/:status', (req, res) => orderController.getOrdersByStatus(req, res));
+    
+    this.logger.info('API routes setup completed');
   }
 
   private async setupMessageQueue(): Promise<void> {
@@ -115,10 +123,14 @@ class OrderServiceApp {
 
       await this.messageQueue.connect();
       this.logger.info('Message queue connected successfully');
+      
+      // API routes are now set up in setupRoutes() after this method completes
     } catch (error) {
       this.logger.error('Failed to connect to message queue:', error);
       // In production, you might want to exit the process
       // process.exit(1);
+      
+      // API routes will still be set up in setupRoutes() even if message queue fails
     }
   }
 
@@ -142,6 +154,12 @@ class OrderServiceApp {
     try {
       // Connect to database
       await this.connectDatabase();
+
+      // Set up message queue before routes
+      await this.setupMessageQueue();
+
+      // Set up routes after message queue is ready
+      this.setupRoutes();
 
       // Start server
       const port = process.env.PORT || 3001;

@@ -34,7 +34,7 @@ export class InventoryService {
         price,
         stockQuantity,
         reservedQuantity: 0,
-        availableQuantity: stockQuantity,
+        // Remove availableQuantity - it's calculated automatically as a virtual field
         category,
         sku,
         isActive: true,
@@ -93,7 +93,7 @@ export class InventoryService {
       await this.publishInventoryEvent('inventory.updated', product);
 
       // Check if stock is low
-      if (product.availableQuantity <= 10) {
+      if ((product.availableQuantity || 0) <= 10) {
         await this.publishInventoryEvent('inventory.low', product);
       }
 
@@ -226,6 +226,111 @@ export class InventoryService {
       return products;
     } catch (error) {
       this.logger.error(`Error fetching available products:`, error);
+      throw error;
+    }
+  }
+
+  // Additional methods for API endpoints
+  async getAllProducts(): Promise<IProduct[]> {
+    try {
+      const products = await Product.find({ isActive: true });
+      return products;
+    } catch (error) {
+      this.logger.error('Error fetching all products:', error);
+      throw error;
+    }
+  }
+
+  async createInventory(productId: string, quantity: number, reserved: number = 0): Promise<any> {
+    try {
+      // For now, we'll update the product's stock quantity
+      // In a real system, you might have a separate Inventory collection
+      const product = await Product.findOne({ productId });
+      if (!product) {
+        throw new Error(`Product not found: ${productId}`);
+      }
+
+      await product.updateStock(quantity);
+      
+      this.logger.info(`Inventory created for product ${productId}: ${quantity} units`);
+      
+      // Publish inventory updated event
+      await this.publishInventoryEvent('inventory.updated', product);
+
+      return {
+        productId,
+        quantity,
+        reserved,
+        available: quantity - reserved
+      };
+    } catch (error) {
+      this.logger.error(`Error creating inventory for product ${productId}:`, error);
+      throw error;
+    }
+  }
+
+  async getInventory(productId: string): Promise<any> {
+    try {
+      const product = await Product.findOne({ productId });
+      if (!product) {
+        return null;
+      }
+
+      return {
+        productId,
+        quantity: product.stockQuantity,
+        reserved: product.reservedQuantity,
+        available: product.availableQuantity || 0
+      };
+    } catch (error) {
+      this.logger.error(`Error fetching inventory for product ${productId}:`, error);
+      throw error;
+    }
+  }
+
+  async getAllInventory(): Promise<any[]> {
+    try {
+      const products = await Product.find({ isActive: true });
+      return products.map(product => ({
+        productId: product.productId,
+        quantity: product.stockQuantity,
+        reserved: product.reservedQuantity,
+        available: product.availableQuantity || 0
+      }));
+    } catch (error) {
+      this.logger.error('Error fetching all inventory:', error);
+      throw error;
+    }
+  }
+
+  async updateInventory(productId: string, quantity: number, reserved?: number): Promise<any> {
+    try {
+      const product = await Product.findOne({ productId });
+      if (!product) {
+        throw new Error(`Product not found: ${productId}`);
+      }
+
+      await product.updateStock(quantity);
+      
+      if (reserved !== undefined) {
+        product.reservedQuantity = reserved;
+        // Remove direct assignment to availableQuantity - it's calculated automatically
+        await product.save();
+      }
+
+      this.logger.info(`Inventory updated for product ${productId}: ${quantity} units`);
+      
+      // Publish inventory updated event
+      await this.publishInventoryEvent('inventory.updated', product);
+
+      return {
+        productId,
+        quantity,
+        reserved: product.reservedQuantity,
+        available: product.availableQuantity || 0
+      };
+    } catch (error) {
+      this.logger.error(`Error updating inventory for product ${productId}:`, error);
       throw error;
     }
   }

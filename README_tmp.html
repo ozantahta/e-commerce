@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="e-commerce-order-processing-system">E-commerce Order Processing System</h1>
+<p>A microservices-based, event-driven order processing system built with Node.js, TypeScript, RabbitMQ, and MongoDB.</p>
+<p><strong>Author &amp; Developer:</strong> Ozan TAHTA</p>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<p>The system follows a microservices architecture with event-driven communication using message queues. Each service is independent, scalable, and fault-tolerant.</p>
+<h3 id="core-services">Core Services</h3>
+<ul>
+<li><strong>Order Service</strong> (Port 3001): Manages order lifecycle and business logic</li>
+<li><strong>Inventory Service</strong> (Port 3002): Handles product inventory and stock management</li>
+<li><strong>Notification Service</strong> (Port 3003): Processes and sends notifications</li>
+</ul>
+<h3 id="infrastructure">Infrastructure</h3>
+<ul>
+<li><strong>RabbitMQ</strong>: Message queue for inter-service communication</li>
+<li><strong>MongoDB</strong>: Persistent storage for all services</li>
+<li><strong>Docker</strong>: Containerization for easy deployment and scaling</li>
+</ul>
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Node.js 18+</li>
+<li>Docker and Docker Compose</li>
+<li>Git</li>
+</ul>
+<h3 id="1-clone-the-repository">1. Clone the Repository</h3>
+<pre class="hljs"><code><div>git <span class="hljs-built_in">clone</span> &lt;repository-url&gt;
+<span class="hljs-built_in">cd</span> e-commerce
+</div></code></pre>
+<h3 id="2-install-dependencies">2. Install Dependencies</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Install root dependencies</span>
+npm install
+
+<span class="hljs-comment"># Install service dependencies</span>
+npm run install:all
+</div></code></pre>
+<h3 id="3-start-with-docker">3. Start with Docker</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Use the setup script (recommended)</span>
+./scripts/setup.sh
+
+<span class="hljs-comment"># Or manually with Docker Compose</span>
+docker-compose up -d
+</div></code></pre>
+<h3 id="4-verify-services">4. Verify Services</h3>
+<ul>
+<li><strong>Order Service</strong>: http://localhost:3001/health</li>
+<li><strong>Inventory Service</strong>: http://localhost:3002/health</li>
+<li><strong>Notification Service</strong>: http://localhost:3003/health</li>
+<li><strong>RabbitMQ Management</strong>: http://localhost:15672 (admin/admin123)</li>
+<li><strong>MongoDB</strong>: localhost:27017</li>
+</ul>
+<h2 id="testing--usage">Testing &amp; Usage</h2>
+<h3 id="quick-testing">Quick Testing</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Run comprehensive system tests</span>
+./run-tests.sh
+
+<span class="hljs-comment"># Create sample data for testing</span>
+./create-data.sh
+</div></code></pre>
+<h3 id="manual-testing">Manual Testing</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Test individual services</span>
+./scripts/<span class="hljs-built_in">test</span>-services.sh
+
+<span class="hljs-comment"># Create sample products and orders</span>
+./scripts/create-sample-data.sh
+</div></code></pre>
+<h3 id="complete-system-setup">Complete System Setup</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Full system setup (builds, starts, and verifies)</span>
+./scripts/setup.sh
+</div></code></pre>
+<h2 id="api-endpoints">API Endpoints</h2>
+<h3 id="order-service">Order Service</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/api/orders</code></td>
+<td>Create a new order</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/orders/:orderId</code></td>
+<td>Get order details</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/orders/:orderId/status</code></td>
+<td>Update order status</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/orders/:orderId/cancel</code></td>
+<td>Cancel an order</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/customers/:customerId/orders</code></td>
+<td>Get customer orders</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/orders/status/:status</code></td>
+<td>Get orders by status</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inventory-service">Inventory Service</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td><code>/api/products</code></td>
+<td>Create a new product</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/products</code></td>
+<td>Get all products</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/products/:productId</code></td>
+<td>Get product details</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/products/:productId/stock</code></td>
+<td>Update product stock</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/inventory</code></td>
+<td>Get inventory overview</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/inventory/:productId</code></td>
+<td>Get specific inventory</td>
+</tr>
+</tbody>
+</table>
+<h3 id="notification-service">Notification Service</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/api/notifications/:notificationId</code></td>
+<td>Get notification details</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/notifications/recipient/:recipientId</code></td>
+<td>Get notifications by recipient</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/notifications/status/:status</code></td>
+<td>Get notifications by status</td>
+</tr>
+</tbody>
+</table>
+<h2 id="event-flow">Event Flow</h2>
+<h3 id="order-creation-flow">Order Creation Flow</h3>
+<ol>
+<li><strong>Order Created</strong>: Order service creates order and publishes <code>order.created</code> event</li>
+<li><strong>Inventory Reserved</strong>: Inventory service receives event and reserves stock</li>
+<li><strong>Notification Sent</strong>: Notification service sends confirmation to customer</li>
+</ol>
+<h3 id="order-cancellation-flow">Order Cancellation Flow</h3>
+<ol>
+<li><strong>Order Cancelled</strong>: Order service cancels order and publishes <code>order.cancelled</code> event</li>
+<li><strong>Inventory Released</strong>: Inventory service releases reserved stock</li>
+<li><strong>Notification Sent</strong>: Notification service sends cancellation confirmation</li>
+</ol>
+<h3 id="inventory-update-flow">Inventory Update Flow</h3>
+<ol>
+<li><strong>Stock Updated</strong>: Inventory service updates stock and publishes <code>inventory.updated</code> event</li>
+<li><strong>Low Stock Alert</strong>: If stock is low, publishes <code>inventory.low</code> event</li>
+<li><strong>Notification Sent</strong>: Notification service alerts administrators</li>
+</ol>
+<h2 id="error-handling--resilience">Error Handling &amp; Resilience</h2>
+<h3 id="circuit-breaker-pattern">Circuit Breaker Pattern</h3>
+<ul>
+<li>Prevents cascading failures</li>
+<li>Configurable failure thresholds and timeouts</li>
+<li>Automatic recovery mechanisms</li>
+</ul>
+<h3 id="retry-mechanism">Retry Mechanism</h3>
+<ul>
+<li>Exponential backoff with jitter</li>
+<li>Configurable retry attempts</li>
+<li>Dead letter queue for failed messages</li>
+</ul>
+<h3 id="dead-letter-queue-dlq">Dead Letter Queue (DLQ)</h3>
+<ul>
+<li>Failed messages are moved to DLQ</li>
+<li>Configurable TTL and retry policies</li>
+<li>Manual intervention for failed messages</li>
+</ul>
+<h3 id="health-checks">Health Checks</h3>
+<ul>
+<li>Service health endpoints</li>
+<li>Database connectivity checks</li>
+<li>Message queue connectivity checks</li>
+</ul>
+<h2 id="configuration">Configuration</h2>
+<h3 id="environment-variables">Environment Variables</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Database</span>
+MONGODB_URL=mongodb://admin:admin123@localhost:27017/e-commerce?authSource=admin
+
+<span class="hljs-comment"># Message Queue</span>
+RABBITMQ_URL=amqp://admin:admin123@localhost:5672
+
+<span class="hljs-comment"># Service Configuration</span>
+PORT=3001
+NODE_ENV=development
+LOG_LEVEL=info
+
+<span class="hljs-comment"># SMTP (Notification Service)</span>
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+</div></code></pre>
+<h3 id="message-queue-configuration">Message Queue Configuration</h3>
+<ul>
+<li><strong>Exchange</strong>: <code>e-commerce.events</code> (Topic exchange)</li>
+<li><strong>Queues</strong>: Service-specific queues with DLQ support</li>
+<li><strong>Routing Keys</strong>:
+<ul>
+<li><code>order.*</code> - Order events</li>
+<li><code>inventory.*</code> - Inventory events</li>
+<li><code>notification.*</code> - Notification events</li>
+</ul>
+</li>
+</ul>
+<h2 id="testing">Testing</h2>
+<h3 id="automated-testing">Automated Testing</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Run comprehensive system tests</span>
+./run-tests.sh
+
+<span class="hljs-comment"># Create sample data</span>
+./create-data.sh
+
+<span class="hljs-comment"># Individual test scripts</span>
+./scripts/<span class="hljs-built_in">test</span>-services.sh
+./scripts/create-sample-data.sh
+</div></code></pre>
+<h3 id="test-coverage">Test Coverage</h3>
+<ul>
+<li><strong>Health Checks</strong>: All services respond correctly</li>
+<li><strong>Order Flow</strong>: Complete order creation and retrieval</li>
+<li><strong>Event Processing</strong>: RabbitMQ events trigger notifications</li>
+<li><strong>Data Persistence</strong>: MongoDB storage and retrieval</li>
+<li><strong>API Endpoints</strong>: All REST endpoints functional</li>
+</ul>
+<h2 id="monitoring--logging">Monitoring &amp; Logging</h2>
+<h3 id="logging">Logging</h3>
+<ul>
+<li>Structured logging with Winston</li>
+<li>Service-specific log files</li>
+<li>Log rotation and retention policies</li>
+</ul>
+<h3 id="health-monitoring">Health Monitoring</h3>
+<ul>
+<li>Service health endpoints</li>
+<li>Database connectivity monitoring</li>
+<li>Message queue health checks</li>
+</ul>
+<h3 id="metrics">Metrics</h3>
+<ul>
+<li>Request/response times</li>
+<li>Error rates</li>
+<li>Queue depths</li>
+<li>Service uptime</li>
+</ul>
+<h2 id="deployment">Deployment</h2>
+<h3 id="local-development">Local Development</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Start all services</span>
+./scripts/setup.sh
+
+<span class="hljs-comment"># Test the system</span>
+./run-tests.sh
+
+<span class="hljs-comment"># Create sample data</span>
+./create-data.sh
+</div></code></pre>
+<h3 id="production-deployment">Production Deployment</h3>
+<ol>
+<li>
+<p><strong>Environment Setup</strong></p>
+<pre class="hljs"><code><div><span class="hljs-built_in">export</span> NODE_ENV=production
+<span class="hljs-built_in">export</span> LOG_LEVEL=warn
+</div></code></pre>
+</li>
+<li>
+<p><strong>Build Services</strong></p>
+<pre class="hljs"><code><div>npm run build
+</div></code></pre>
+</li>
+<li>
+<p><strong>Docker Deployment</strong></p>
+<pre class="hljs"><code><div>docker-compose up -d
+</div></code></pre>
+</li>
+</ol>
+<h3 id="scaling">Scaling</h3>
+<ul>
+<li>Horizontal scaling with multiple service instances</li>
+<li>Load balancing with Nginx</li>
+<li>Database sharding for high volume</li>
+<li>Message queue clustering</li>
+</ul>
+<h2 id="security">Security</h2>
+<ul>
+<li>Helmet.js for security headers</li>
+<li>Rate limiting to prevent abuse</li>
+<li>Input validation with Joi</li>
+<li>CORS configuration</li>
+<li>Environment variable protection</li>
+</ul>
+<h2 id="performance">Performance</h2>
+<ul>
+<li>Database indexing for fast queries</li>
+<li>Connection pooling</li>
+<li>Message queue prefetch settings</li>
+<li>Efficient event processing</li>
+<li>Memory usage optimization</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<ol>
+<li>
+<p><strong>Service Won't Start</strong></p>
+<ul>
+<li>Check database connectivity</li>
+<li>Verify message queue connection</li>
+<li>Check environment variables</li>
+</ul>
+</li>
+<li>
+<p><strong>Messages Not Processing</strong></p>
+<ul>
+<li>Verify queue bindings</li>
+<li>Check routing keys</li>
+<li>Monitor DLQ for failed messages</li>
+</ul>
+</li>
+<li>
+<p><strong>Database Connection Issues</strong></p>
+<ul>
+<li>Verify MongoDB credentials</li>
+<li>Check network connectivity</li>
+<li>Monitor connection pool</li>
+</ul>
+</li>
+</ol>
+<h3 id="debug-mode">Debug Mode</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Enable debug logging</span>
+<span class="hljs-built_in">export</span> LOG_LEVEL=debug
+
+<span class="hljs-comment"># Check service logs</span>
+docker-compose logs -f order-service
+</div></code></pre>
+<h3 id="reset-system">Reset System</h3>
+<pre class="hljs"><code><div><span class="hljs-comment"># Complete system reset</span>
+docker-compose down
+docker system prune -a -f
+./scripts/setup.sh
+</div></code></pre>
+<h2 id="project-structure">Project Structure</h2>
+<pre class="hljs"><code><div>e-commerce/
+├── run-tests.sh          ← Quick test launcher
+├── create-data.sh        ← Quick sample data launcher
+├── scripts/              ← All utility scripts
+│   ├── setup.sh          ← Complete system setup
+│   ├── test-services.sh  ← Main testing script
+│   └── create-sample-data.sh ← Sample data creation
+├── services/             ← Microservices code
+│   ├── order-service/    ← Order management
+│   ├── inventory-service/ ← Inventory management
+│   └── notification-service/ ← Notification handling
+├── shared/               ← Shared utilities
+├── nginx/                ← Load balancer config
+├── docker-compose.yml    ← Container orchestration
+└── README.md             ← This documentation
+</div></code></pre>
+<h2 id="contributing">Contributing</h2>
+<p>This project was developed by Ozan TAHTA as a technical assessment for backend developer position.</p>
+<p>For questions or support regarding this implementation:</p>
+<ul>
+<li>Contact: Ozan TAHTA</li>
+<li>Project: E-commerce Order Processing System</li>
+<li>Purpose: Backend Developer Technical Assessment</li>
+</ul>
+<h2 id="license">License</h2>
+<p>This project is licensed under the MIT License.</p>
+<p><strong>Copyright (c) 2024 Ozan TAHTA</strong></p>
+<p>All rights reserved.</p>
+<h2 id="support">Support</h2>
+<p>For support and questions regarding this e-commerce order processing system:</p>
+<p><strong>Developer:</strong> Ozan TAHTA<br>
+<strong>Project:</strong> E-commerce Order Processing System<br>
+<strong>Purpose:</strong> Backend Developer Technical Assessment</p>
+<ul>
+<li>Create an issue in the repository</li>
+<li>Check the troubleshooting section</li>
+<li>Review the API documentation</li>
+<li>Contact: Ozan TAHTA</li>
+</ul>
+<h2 id="future-enhancements">Future Enhancements</h2>
+<ul>
+<li><input type="checkbox" id="checkbox0"><label for="checkbox0">GraphQL API</label></li>
+<li><input type="checkbox" id="checkbox1"><label for="checkbox1">Real-time notifications with WebSockets</label></li>
+<li><input type="checkbox" id="checkbox2"><label for="checkbox2">Advanced analytics and reporting</label></li>
+<li><input type="checkbox" id="checkbox3"><label for="checkbox3">Multi-tenant support</label></li>
+<li><input type="checkbox" id="checkbox4"><label for="checkbox4">Event sourcing implementation</label></li>
+<li><input type="checkbox" id="checkbox5"><label for="checkbox5">Kubernetes deployment manifests</label></li>
+<li><input type="checkbox" id="checkbox6"><label for="checkbox6">CI/CD pipeline configuration</label></li>
+<li><input type="checkbox" id="checkbox7"><label for="checkbox7">Performance benchmarking tools</label></li>
+</ul>
+
+</body>
+</html>

@@ -96,14 +96,14 @@ class NotificationServiceApp {
   private async setupMessageQueue(): Promise<void> {
     try {
       this.messageQueue = new MessageQueueManager({
-        url: process.env.RABBITMQ_URL || 'amqp://admin:admin123@rabbitmq:5672',
-        exchange: 'e-commerce-events',
+        url: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
+        exchange: 'e-commerce.events',
         queue: 'notification-service-queue',
         routingKey: 'order.*',
         options: {
           durable: true,
           persistent: true,
-          deadLetterExchange: 'e-commerce-dlq',
+          deadLetterExchange: 'e-commerce.dlq',
           deadLetterRoutingKey: 'notification-service-dlq',
           messageTtl: 30000, // 30 seconds
           maxRetries: 3
@@ -183,15 +183,60 @@ class NotificationServiceApp {
 
   // Notification functions
   private async sendOrderConfirmation(orderEvent: OrderEvent): Promise<void> {
-    // Simulate sending email/SMS notification
-    this.logger.info(`Sending order confirmation to customer ${orderEvent.data.customerId} for order ${orderEvent.data.orderId}`);
-    // In production, integrate with email/SMS service
+    try {
+      // Import the Notification model directly
+      const { Notification } = await import('./models/Notification');
+      
+      // Create and store notification directly in database
+      const notification = new Notification({
+        notificationId: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        recipientId: orderEvent.data.customerId,
+        type: 'email',
+        template: 'order_confirmation',
+        content: {
+          orderId: orderEvent.data.orderId,
+          message: 'Your order has been confirmed!',
+          total: orderEvent.data.total,
+          items: orderEvent.data.items
+        },
+        status: 'pending',
+        attempts: 0,
+        createdAt: new Date()
+      });
+      
+      await notification.save();
+      this.logger.info(`Order confirmation notification sent and stored for customer ${orderEvent.data.customerId} for order ${orderEvent.data.orderId}`);
+    } catch (error) {
+      this.logger.error(`Error sending order confirmation notification:`, error);
+    }
   }
 
   private async sendOrderCancellation(orderEvent: OrderEvent): Promise<void> {
-    // Simulate sending email/SMS notification
-    this.logger.info(`Sending order cancellation to customer ${orderEvent.data.customerId} for order ${orderEvent.data.orderId}`);
-    // In production, integrate with email/SMS service
+    try {
+      // Import the Notification model directly
+      const { Notification } = await import('./models/Notification');
+      
+      // Create and store notification directly in database
+      const notification = new Notification({
+        notificationId: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        recipientId: orderEvent.data.customerId,
+        type: 'email',
+        template: 'order_cancellation',
+        content: {
+          orderId: orderEvent.data.orderId,
+          message: 'Your order has been cancelled.',
+          reason: 'Order was cancelled'
+        },
+        status: 'pending',
+        attempts: 0,
+        createdAt: new Date()
+      });
+      
+      await notification.save();
+      this.logger.info(`Order cancellation notification sent and stored for customer ${orderEvent.data.customerId} for order ${orderEvent.data.orderId}`);
+    } catch (error) {
+      this.logger.error(`Error sending order cancellation notification:`, error);
+    }
   }
 
   async start(): Promise<void> {

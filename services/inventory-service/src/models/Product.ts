@@ -7,7 +7,7 @@ export interface IProduct extends Document {
   price: number;
   stockQuantity: number;
   reservedQuantity: number;
-  availableQuantity: number;
+  availableQuantity?: number; // Make optional since it's a virtual field
   category: string;
   sku: string;
   isActive: boolean;
@@ -61,12 +61,7 @@ const ProductSchema = new Schema<IProduct>({
     min: 0,
     default: 0
   },
-  availableQuantity: { 
-    type: Number, 
-    required: true, 
-    min: 0,
-    default: 0
-  },
+  // Remove availableQuantity from real schema - it's calculated as a virtual field
   category: { 
     type: String, 
     required: true, 
@@ -94,27 +89,29 @@ const ProductSchema = new Schema<IProduct>({
 // Indexes for better query performance
 ProductSchema.index({ category: 1, isActive: 1 });
 ProductSchema.index({ stockQuantity: 1 });
-ProductSchema.index({ availableQuantity: 1 });
+// Remove availableQuantity index since it's now a virtual field
 
 // Virtual for available quantity
 ProductSchema.virtual('availableQuantity').get(function() {
-  return Math.max(0, this.stockQuantity - this.reservedQuantity);
+  const stock = this.stockQuantity || 0;
+  const reserved = this.reservedQuantity || 0;
+  return Math.max(0, stock - reserved);
 });
 
-// Pre-save middleware to update available quantity
-ProductSchema.pre('save', function(next) {
-  this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
-  next();
-});
+// Remove the pre-save middleware that was causing the conflict
+// ProductSchema.pre('save', function(next) {
+//   this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
+//   next();
+// });
 
 // Instance method to reserve inventory
 ProductSchema.methods.reserveInventory = async function(this: IProduct, quantity: number, orderId: string): Promise<boolean> {
-  if (this.availableQuantity < quantity) {
+  if ((this.availableQuantity || 0) < quantity) {
     return false;
   }
 
   this.reservedQuantity += quantity;
-  this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
+  // Remove direct assignment to availableQuantity - it's calculated automatically
   
   // Add reservation metadata
   if (!this.metadata) {
@@ -137,7 +134,7 @@ ProductSchema.methods.reserveInventory = async function(this: IProduct, quantity
 // Instance method to release inventory
 ProductSchema.methods.releaseInventory = async function(this: IProduct, quantity: number, orderId: string): Promise<void> {
   this.reservedQuantity = Math.max(0, this.reservedQuantity - quantity);
-  this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
+  // Remove direct assignment to availableQuantity - it's calculated automatically
   
   // Update reservation metadata
   if (this.metadata && this.metadata.reservations) {
@@ -152,7 +149,7 @@ ProductSchema.methods.releaseInventory = async function(this: IProduct, quantity
 // Instance method to update stock
 ProductSchema.methods.updateStock = async function(this: IProduct, newQuantity: number): Promise<void> {
   this.stockQuantity = Math.max(0, newQuantity);
-  this.availableQuantity = Math.max(0, this.stockQuantity - this.reservedQuantity);
+  // Remove direct assignment to availableQuantity - it's calculated automatically
   await this.save();
 };
 

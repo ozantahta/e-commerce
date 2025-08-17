@@ -4,7 +4,7 @@ A microservices-based, event-driven order processing system built with Node.js, 
 
 **Author & Developer:** Ozan TAHTA
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 The system follows a microservices architecture with event-driven communication using message queues. Each service is independent, scalable, and fault-tolerant.
 
@@ -20,7 +20,7 @@ The system follows a microservices architecture with event-driven communication 
 - **MongoDB**: Persistent storage for all services
 - **Docker**: Containerization for easy deployment and scaling
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -32,7 +32,7 @@ The system follows a microservices architecture with event-driven communication 
 
 ```bash
 git clone <repository-url>
-cd e-commerce-order-processing
+cd e-commerce
 ```
 
 ### 2. Install Dependencies
@@ -48,10 +48,10 @@ npm run install:all
 ### 3. Start with Docker
 
 ```bash
-# Build and start all services
-npm run docker:up
+# Use the setup script (recommended)
+./scripts/setup.sh
 
-# Or manually
+# Or manually with Docker Compose
 docker-compose up -d
 ```
 
@@ -63,7 +63,36 @@ docker-compose up -d
 - **RabbitMQ Management**: http://localhost:15672 (admin/admin123)
 - **MongoDB**: localhost:27017
 
-## 📋 API Endpoints
+## Testing & Usage
+
+### Quick Testing
+
+```bash
+# Run comprehensive system tests
+./run-tests.sh
+
+# Create sample data for testing
+./create-data.sh
+```
+
+### Manual Testing
+
+```bash
+# Test individual services
+./scripts/test-services.sh
+
+# Create sample products and orders
+./scripts/create-sample-data.sh
+```
+
+### Complete System Setup
+
+```bash
+# Full system setup (builds, starts, and verifies)
+./scripts/setup.sh
+```
+
+## API Endpoints
 
 ### Order Service
 
@@ -81,20 +110,21 @@ docker-compose up -d
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/products` | Create a new product |
+| GET | `/api/products` | Get all products |
 | GET | `/api/products/:productId` | Get product details |
 | PUT | `/api/products/:productId/stock` | Update product stock |
-| GET | `/api/products/category/:category` | Get products by category |
-| GET | `/api/products/low-stock` | Get low stock products |
+| GET | `/api/inventory` | Get inventory overview |
+| GET | `/api/inventory/:productId` | Get specific inventory |
 
 ### Notification Service
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/notifications` | Send a notification |
 | GET | `/api/notifications/:notificationId` | Get notification details |
+| GET | `/api/notifications/recipient/:recipientId` | Get notifications by recipient |
 | GET | `/api/notifications/status/:status` | Get notifications by status |
 
-## 🔄 Event Flow
+## Event Flow
 
 ### Order Creation Flow
 
@@ -114,7 +144,7 @@ docker-compose up -d
 2. **Low Stock Alert**: If stock is low, publishes `inventory.low` event
 3. **Notification Sent**: Notification service alerts administrators
 
-## 🛡️ Error Handling & Resilience
+## Error Handling & Resilience
 
 ### Circuit Breaker Pattern
 - Prevents cascading failures
@@ -136,7 +166,7 @@ docker-compose up -d
 - Database connectivity checks
 - Message queue connectivity checks
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -168,31 +198,31 @@ SMTP_PASS=your-app-password
   - `inventory.*` - Inventory events
   - `notification.*` - Notification events
 
-## 🧪 Testing
+## Testing
 
-### Run Tests
+### Automated Testing
 
 ```bash
-# Run all tests
-npm test
+# Run comprehensive system tests
+./run-tests.sh
 
-# Run specific service tests
-npm run test:order
-npm run test:inventory
-npm run test:notification
+# Create sample data
+./create-data.sh
 
-# Watch mode
-npm run test:watch
+# Individual test scripts
+./scripts/test-services.sh
+./scripts/create-sample-data.sh
 ```
 
 ### Test Coverage
 
-- Unit tests for all services
-- Integration tests for API endpoints
-- Event flow testing
-- Error scenario testing
+- **Health Checks**: All services respond correctly
+- **Order Flow**: Complete order creation and retrieval
+- **Event Processing**: RabbitMQ events trigger notifications
+- **Data Persistence**: MongoDB storage and retrieval
+- **API Endpoints**: All REST endpoints functional
 
-## 📊 Monitoring & Logging
+## Monitoring & Logging
 
 ### Logging
 - Structured logging with Winston
@@ -210,7 +240,20 @@ npm run test:watch
 - Queue depths
 - Service uptime
 
-## 🚀 Deployment
+## Deployment
+
+### Local Development
+
+```bash
+# Start all services
+./scripts/setup.sh
+
+# Test the system
+./run-tests.sh
+
+# Create sample data
+./create-data.sh
+```
 
 ### Production Deployment
 
@@ -227,7 +270,7 @@ npm run test:watch
 
 3. **Docker Deployment**
    ```bash
-   docker-compose -f docker-compose.prod.yml up -d
+   docker-compose up -d
    ```
 
 ### Scaling
@@ -237,7 +280,7 @@ npm run test:watch
 - Database sharding for high volume
 - Message queue clustering
 
-## 🔒 Security
+## Security
 
 - Helmet.js for security headers
 - Rate limiting to prevent abuse
@@ -245,7 +288,7 @@ npm run test:watch
 - CORS configuration
 - Environment variable protection
 
-## 📈 Performance
+## Performance
 
 - Database indexing for fast queries
 - Connection pooling
@@ -253,7 +296,7 @@ npm run test:watch
 - Efficient event processing
 - Memory usage optimization
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -282,7 +325,36 @@ export LOG_LEVEL=debug
 docker-compose logs -f order-service
 ```
 
-## 🤝 Contributing
+### Reset System
+
+```bash
+# Complete system reset
+docker-compose down
+docker system prune -a -f
+./scripts/setup.sh
+```
+
+## Project Structure
+
+```
+e-commerce/
+├── run-tests.sh          ← Quick test launcher
+├── create-data.sh        ← Quick sample data launcher
+├── scripts/              ← All utility scripts
+│   ├── setup.sh          ← Complete system setup
+│   ├── test-services.sh  ← Main testing script
+│   └── create-sample-data.sh ← Sample data creation
+├── services/             ← Microservices code
+│   ├── order-service/    ← Order management
+│   ├── inventory-service/ ← Inventory management
+│   └── notification-service/ ← Notification handling
+├── shared/               ← Shared utilities
+├── nginx/                ← Load balancer config
+├── docker-compose.yml    ← Container orchestration
+└── README.md             ← This documentation
+```
+
+## Contributing
 
 This project was developed by Ozan TAHTA as a technical assessment for backend developer position.
 
@@ -291,7 +363,7 @@ For questions or support regarding this implementation:
 - Project: E-commerce Order Processing System
 - Purpose: Backend Developer Technical Assessment
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
@@ -299,7 +371,7 @@ This project is licensed under the MIT License.
 
 All rights reserved.
 
-## 🆘 Support
+## Support
 
 For support and questions regarding this e-commerce order processing system:
 
@@ -312,7 +384,7 @@ For support and questions regarding this e-commerce order processing system:
 - Review the API documentation
 - Contact: Ozan TAHTA
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - [ ] GraphQL API
 - [ ] Real-time notifications with WebSockets
